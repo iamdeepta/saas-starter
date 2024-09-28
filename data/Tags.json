@@ -1,0 +1,54 @@
+[
+  {
+    "id": 1,
+    "name": "entertainment"
+  },
+  {
+    "id": 2,
+    "name": "crime"
+  },
+  {
+    "id": 3,
+    "name": "football"
+  },
+  {
+    "id": 4,
+    "name": "cricket"
+  },
+  {
+    "id": 5,
+    "name": "politics"
+  },
+  {
+    "id": 6,
+    "name": "sports"
+  },
+  {
+    "id": 7,
+    "name": "game"
+  },
+  {
+    "id": 8,
+    "name": "trade"
+  },
+  {
+    "id": 9,
+    "name": "banking"
+  },
+  {
+    "id": 10,
+    "name": "money"
+  },
+  {
+    "id": 11,
+    "name": "management"
+  },
+  {
+    "id": 12,
+    "name": "lifestyle"
+  },
+  {
+    "id": 13,
+    "name": "ai"
+  }
+]
