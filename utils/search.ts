@@ -12,9 +12,18 @@ const searchData = ({
   if (searchTerm) {
     filteredData = filteredData.filter(
       (data: any) =>
-        data[fields?.field1].toLowerCase().includes(searchTerm.toLowerCase()) ||
-        data[fields?.field2].toLowerCase().includes(searchTerm.toLowerCase()) ||
-        data[fields?.field3].toLowerCase().includes(searchTerm.toLowerCase())
+        data[fields?.field1]
+          .toLowerCase()
+          .replaceAll(" ", "")
+          .includes(searchTerm.toLowerCase().replaceAll(" ", "")) ||
+        data[fields?.field2]
+          .toLowerCase()
+          .replaceAll(" ", "")
+          .includes(searchTerm.toLowerCase().replaceAll(" ", "")) ||
+        data[fields?.field3]
+          .toLowerCase()
+          .replaceAll(" ", "")
+          .includes(searchTerm.toLowerCase().replaceAll(" ", ""))
     );
   }
 
