@@ -1,6 +1,7 @@
 "use client";
 
 import * as Select from "@radix-ui/react-select";
+import { memo } from "react";
 
 const SelectDropdown = ({
   handleSelectChange,
@@ -41,4 +42,4 @@ const SelectDropdown = ({
   );
 };
 
-export default SelectDropdown;
+export default memo(SelectDropdown);

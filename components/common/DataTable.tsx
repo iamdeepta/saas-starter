@@ -1,5 +1,8 @@
 "use client";
 
+import filterByTag from "@/utils/filter";
+import searchData from "@/utils/search";
+import sortByOrder from "@/utils/sort";
 import {
   Flex,
   Table,
@@ -11,7 +14,7 @@ import { FilterValue, SorterResult } from "antd/es/table/interface";
 import { Pencil, RotateCcw, Trash } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import SearchBlog from "../blog-posts/SearchBlog";
 import SelectDropdown from "../ui/select";
 
@@ -59,30 +62,14 @@ const DataTable = ({ data, tags }: ResponseType) => {
 
   useEffect(() => {
     //filter by tag
-    if (selectedTag) {
-      if (selectedTag === "all") {
-        filtered = [...blogData];
-      } else {
-        filtered = filtered.filter((blog) =>
-          blog.tags.some((tag) => selectedTag.includes(tag))
-        );
-      }
-    }
+    filtered = filterByTag({
+      selectedData: selectedTag,
+      filteredData: filtered,
+      mainData: blogData,
+    });
 
     //sort blogs
-    if (sortOrder) {
-      const { field, order }: any = sortOrder;
-      filtered.sort((a: any, b: any) => {
-        if (order === "ascend") {
-          return a[field].localeCompare(b[field]);
-        }
-        if (order === "descend") {
-          return b[field].localeCompare(a[field]);
-        }
-
-        return 0;
-      });
-    }
+    sortByOrder({ sortOrder, filteredData: filtered });
 
     setFilteredData(filtered);
     setPagination((prev) => ({
@@ -106,14 +93,14 @@ const DataTable = ({ data, tags }: ResponseType) => {
   };
 
   //input search term
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSearch = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
-  };
+  }, []);
 
   //select tag
-  const handleTagFilter = (tag: string) => {
+  const handleTagFilter = useCallback((tag: string) => {
     setSelectedTag(tag);
-  };
+  }, []);
 
   //reload all data
   const refreshData = () => {
@@ -128,23 +115,24 @@ const DataTable = ({ data, tags }: ResponseType) => {
   };
 
   //search form submission
-  const handleOnSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (searchTerm) {
-      filtered = filtered.filter(
-        (blog) =>
-          blog.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          blog.slug.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          blog.state.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
+  const handleOnSubmit = useCallback(
+    (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      filtered = searchData({
+        searchTerm,
+        filteredData: filtered,
+        fields: { field1: "title", field2: "slug", field3: "state" },
+      });
 
-    setFilteredData(filtered);
-    setPagination((prev) => ({
-      ...prev,
-      total: filtered.length,
-    }));
-  };
+      setFilteredData(filtered);
+      setPagination((prev) => ({
+        ...prev,
+        current: 1,
+        total: filtered.length,
+      }));
+    },
+    [searchTerm]
+  );
 
   //columns for blog data
   const columns: TableColumnsType<DataType> = [
@@ -152,14 +140,25 @@ const DataTable = ({ data, tags }: ResponseType) => {
       title: "ID",
       dataIndex: "id",
       key: "id",
+      shouldCellUpdate: (prevRecord, nextRecord) =>
+        prevRecord.id != nextRecord.id,
     },
     {
       title: "TITLE",
       dataIndex: "title",
       key: "title",
       sorter: true,
+      shouldCellUpdate: (prevRecord, nextRecord) =>
+        prevRecord.title != nextRecord.title,
     },
-    { title: "SLUG", dataIndex: "slug", key: "slug", sorter: true },
+    {
+      title: "SLUG",
+      dataIndex: "slug",
+      key: "slug",
+      sorter: true,
+      shouldCellUpdate: (prevRecord, nextRecord) =>
+        prevRecord.slug != nextRecord.slug,
+    },
     {
       title: "FEATUREIMAGE",
       dataIndex: "featureImage",
@@ -175,8 +174,17 @@ const DataTable = ({ data, tags }: ResponseType) => {
           />
         </>
       ),
+      shouldCellUpdate: (prevRecord, nextRecord) =>
+        prevRecord.featureImage != nextRecord.featureImage,
     },
-    { title: "STATE", dataIndex: "state", key: "state", sorter: true },
+    {
+      title: "STATE",
+      dataIndex: "state",
+      key: "state",
+      sorter: true,
+      shouldCellUpdate: (prevRecord, nextRecord) =>
+        prevRecord.state != nextRecord.state,
+    },
     {
       title: "TAGS",
       dataIndex: "tags",
@@ -193,6 +201,8 @@ const DataTable = ({ data, tags }: ResponseType) => {
           })}
         </>
       ),
+      shouldCellUpdate: (prevRecord, nextRecord) =>
+        prevRecord.tags?.join("") != nextRecord.tags?.join(""),
     },
     {
       title: "",
